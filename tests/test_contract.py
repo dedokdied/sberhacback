@@ -203,12 +203,15 @@ def test_non_numeric_quantity_returns_422(client, golden_frames):
     _error(response, 422, "VALIDATION_ERROR")
 
 
-def test_negative_stock_returns_422(client, golden_frames):
+def test_negative_stock_accepted_and_clipped(client, golden_frames):
+    """Отрицательный stock не отклоняется (п. 10.4 отключён по согласованию) — прогноз отдаётся."""
     sales, stock = golden_frames
     broken = stock.copy()
     broken.loc[0, "stock"] = "-2"
     response = post_files(client, frame_to_csv_bytes(sales), frame_to_csv_bytes(broken))
-    _error(response, 422, "VALIDATION_ERROR")
+    assert response.status_code == 200, response.text
+    lines = response.content.decode("utf-8").strip().splitlines()
+    assert len(lines) == EXPECTED_ROWS + 1
 
 
 def test_short_history_returns_422(client, golden_frames):

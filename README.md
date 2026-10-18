@@ -23,6 +23,10 @@ forecast-container/
 │   ├── predict.py          # ModelBundle и predict_64 — единая точка инференса
 │   └── train.py            # обучение и сборка артефактов model/ (offline)
 ├── model/                  # lightgbm.txt, config.json, catalogs.json, checksums.json
+├── data/                   # примеры входа (sample_sales.csv, sample_stock.csv):
+│                           # срез 4 активных пар за 200 дней — по согласованию с
+│                           # организаторами это не «первые 100 строк», а срез с историей
+│                           # ≥180 дней, чтобы самопроверка (п. 10.5/10.10) проходила
 ├── tests/                  # pytest (контракт, негативные, parity), test_api.sh, load_test.py
 │   └── data/               # golden-фикстуры (sales/stock), см. tests/make_golden.py
 ├── reports/benchmark.md    # протокол замеров времени/памяти
@@ -66,7 +70,7 @@ python -m venv .venv
 
 ```bash
 curl -X POST http://localhost:8000/predict \
-  -F "sales=@sales_last_180.csv" -F "stock=@stock_last_180.csv" -o forecast.csv
+  -F "sales=@data/sample_sales.csv" -F "stock=@data/sample_stock.csv" -o forecast.csv
 
 curl 'http://localhost:8000/predict?article=char_article_1'
 curl 'http://localhost:8000/predict?warehouse=warehouse_name_3'
@@ -106,7 +110,9 @@ curl 'http://localhost:8000/predict/all?format=json' -o full_forecast.json
   денежные колонки опциональны (пустые/отрицательные допустимы, агрегируются sum/mean).
 - **stock**: обязательны `date, warehouse_name, article|char_article, stock`;
   конфликтующие дубли `(date, warehouse_name, article)` → **422** (политика не согласована),
-  идентичные дубли дедуплицируются; отрицательный остаток → 422.
+  идентичные дубли дедуплицируются; отрицательные остатки принимаются и клиппятся в 0
+  (по согласованию с организаторами требование п. 10.4 возвращать 422 отключено —
+  в выданных данных строки со stock −1/−2 реально встречаются).
 - История: `max(date) − min(date) + 1 ≥ 180` календарных дней (разрывы покрытия логируются).
 - Остатки после `max(sales.date)` в признаки не попадают; дата старта прогноза —
   строго `max(sales.date) + 1`.
@@ -124,9 +130,14 @@ curl 'http://localhost:8000/predict/all?format=json' -o full_forecast.json
 слабых плюсов, подобранный по официальным метрикам кейса на отложенном окне (см.
 `config.json → postprocess.positive_threshold`).
 
-Контрольные метрики на отложенном cutoff 2026-05-01 (64 дня): SMAPE = 158,1 %,
-WAPE = 90,5 %, RMSE = 0,817, Bias = −7,2 %, RMSLE = 0,309. Полный протокол замеров —
-`reports/benchmark.md`.
+SMAPE считается по п. 5.5 ТЗ с включением нулевых дней (уточнение организаторов:
+(факт=0, прогноз=0) входит в среднее как 0 %; вариант score.py с
+`mask = denominator > 0` не применяется).
+
+Контрольные метрики на отложенном cutoff 2026-05-01 (64 дня): SMAPE = 29,1 %,
+WAPE = 77,0 %, RMSE = 0,852, Bias = −43,2 %, RMSLE = 0,335 (порог обнуления слабых
+плюсов после пересчёта — 1.0, см. `config.json → postprocess.positive_threshold`).
+Полный протокол замеров — `reports/benchmark.md`.
 
 Переобучение (offline, вне Docker):
 

@@ -5,9 +5,12 @@
 * пустой или синтаксически некорректный CSV -> :class:`CsvParseError` (HTTP 400);
 * схема, типы, даты, ключи, каталог, история -> :class:`DataValidationError` (HTTP 422);
 * sales: дубли ``(date, warehouse_name, article)`` агрегируются суммой ``quantity``;
-* stock: идентичные дубли удаляются, конфликтующие значения -> 422 (политика не согласована);
-* offline-режим обучения использует послабления (``strict=False``): отрицательные
-  остатки клиппятся, конфликтующие дубли разрешаются явно заданной агрегацией.
+* stock: отрицательные остатки принимаются и клиппятся в 0 в обоих режимах (по
+  согласованию с организаторами требование п. 10.4 о 422 не применяется — в выданных
+  данных такие строки реально встречаются); идентичные дубли удаляются, конфликтующие
+  значения -> 422 (политика не согласована);
+* offline-режим обучения использует послабления (``strict=False``): пустые остатки
+  заполняются нулями, конфликтующие дубли разрешаются явно заданной агрегацией.
 
 Текст CSV читается в строковом виде: ID сохраняются как есть, ведущие нули не теряются.
 """
@@ -270,9 +273,11 @@ def load_stock(
 ) -> pd.DataFrame:
     """Читает и валидирует stock-таблицу.
 
-    ``strict=True`` (API): отрицательные остатки и конфликтующие дубли -> 422.
-    ``strict=False`` (обучение): отрицательные клиппятся, конфликты разрешаются
-    агрегацией ``resolve_conflicts`` (``mean``/``max``/``min``), если она задана.
+    Отрицательные остатки принимаются и клиппятся в 0 в обоих режимах (по
+    согласованию с организаторами валидация п. 10.4 о 422 отключена).
+    ``strict=True`` (API): конфликтующие дубли -> 422.
+    ``strict=False`` (обучение): пустые остатки заполняются нулями, конфликты
+    разрешаются агрегацией ``resolve_conflicts`` (``mean``/``max``/``min``).
     """
     df = _read_source(source, name="stock")
     if "article" not in df.columns and "char_article" in df.columns:
@@ -282,17 +287,20 @@ def load_stock(
     df = df.copy()
     df["date"] = _parse_dates(df, "stock")
     df["stock"] = _parse_numeric(
-        df, "stock", "stock", allow_negative=not strict, allow_missing=not strict
+        df, "stock", "stock", allow_negative=True, allow_missing=not strict
     )
     if not strict:
         missing = df["stock"].isna()
         if missing.any():
             logger.warning("stock: пустые остатки заполняются 0: %d строк", int(missing.sum()))
             df["stock"] = df["stock"].fillna(0.0)
-        negative = df["stock"] < 0
-        if negative.any():
-            logger.warning("stock: отрицательные остатки клиппятся в 0: %d строк", int(negative.sum()))
-            df.loc[negative, "stock"] = 0.0
+    negative = df["stock"] < 0
+    if negative.any():
+        logger.warning(
+            "stock: отрицательные остатки клиппятся в 0: %d строк (валидация п. 10.4 отключена по согласованию)",
+            int(negative.sum()),
+        )
+        df.loc[negative, "stock"] = 0.0
 
     _check_key_columns(df, "stock")
     _check_catalog(df, catalogs, "stock")

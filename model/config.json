@@ -46,7 +46,7 @@
   "postprocess": {
     "clip_min": 0,
     "zero_forecast_if_no_sales_in_window": true,
-    "positive_threshold": 0.1
+    "positive_threshold": 1.0
   },
   "lgb_params": {
     "learning_rate": 0.06,
@@ -100,27 +100,27 @@
   },
   "valid_metrics": {
     "rows": 562496,
-    "chosen_threshold": 0.1,
+    "chosen_threshold": 1.0,
     "chosen": {
-      "threshold": 0.1,
-      "smape": 158.1021,
-      "wape": 90.5252,
-      "rmse": 0.8165,
-      "bias_pct": -7.1774,
-      "rmsle": 0.3086
+      "threshold": 1.0,
+      "smape": 29.0813,
+      "wape": 77.0223,
+      "rmse": 0.8516,
+      "bias_pct": -43.232,
+      "rmsle": 0.3346
     },
     "grid": [
       {
         "threshold": 0.0,
-        "smape": 181.152,
-        "wape": 96.0904,
-        "rmse": 0.8158,
-        "bias_pct": -1.0219,
-        "rmsle": 0.308
+        "smape": 80.9926,
+        "wape": 90.5252,
+        "rmse": 0.8165,
+        "bias_pct": -7.1774,
+        "rmsle": 0.3086
       },
       {
         "threshold": 0.1,
-        "smape": 158.1021,
+        "smape": 80.9926,
         "wape": 90.5252,
         "rmse": 0.8165,
         "bias_pct": -7.1774,
@@ -128,7 +128,7 @@
       },
       {
         "threshold": 0.2,
-        "smape": 158.3785,
+        "smape": 55.0531,
         "wape": 85.9037,
         "rmse": 0.8182,
         "bias_pct": -13.2364,
@@ -136,7 +136,7 @@
       },
       {
         "threshold": 0.3,
-        "smape": 159.2843,
+        "smape": 42.93,
         "wape": 82.4588,
         "rmse": 0.8209,
         "bias_pct": -18.7556,
@@ -144,7 +144,7 @@
       },
       {
         "threshold": 0.5,
-        "smape": 161.5334,
+        "smape": 33.207,
         "wape": 78.5624,
         "rmse": 0.8281,
         "bias_pct": -27.6632,
@@ -152,7 +152,7 @@
       },
       {
         "threshold": 0.75,
-        "smape": 164.135,
+        "smape": 29.656,
         "wape": 76.8054,
         "rmse": 0.8387,
         "bias_pct": -36.1981,
@@ -160,7 +160,7 @@
       },
       {
         "threshold": 1.0,
-        "smape": 166.4305,
+        "smape": 29.0813,
         "wape": 77.0223,
         "rmse": 0.8516,
         "bias_pct": -43.232,

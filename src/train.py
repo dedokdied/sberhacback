@@ -97,15 +97,21 @@ THRESHOLD_GRID = (0.0, 0.1, 0.2, 0.3, 0.5, 0.75, 1.0)
 def forecast_metrics(
     actual: np.ndarray, predicted: np.ndarray, series_ids: np.ndarray
 ) -> dict:
-    """Пять официальных метрик кейса на общем массиве факта и прогноза."""
+    """Пять официальных метрик кейса на общем массиве факта и прогноза.
+
+    SMAPE — по п. 5.5 ТЗ (уточнение организаторов): нулевые дни учитываются в
+    среднем по серии, пара (факт=0, прогноз=0) даёт 0 %; вариант с исключением
+    ``denominator > 0`` больше не применяется.
+    """
+    actual = np.asarray(actual, dtype=np.float64)
+    predicted = np.asarray(predicted, dtype=np.float64)
     denominator = (np.abs(actual) + np.abs(predicted)) / 2.0
-    mask = denominator > 0
-    frame = pd.DataFrame(
-        {
-            "sid": series_ids[mask],
-            "error": np.abs(actual[mask] - predicted[mask]) / denominator[mask] * 100.0,
-        }
+    positive = denominator > 0
+    error = np.zeros_like(actual)
+    error[positive] = (
+        np.abs(actual[positive] - predicted[positive]) / denominator[positive] * 100.0
     )
+    frame = pd.DataFrame({"sid": series_ids, "error": error})
     per_series = frame.groupby("sid")["error"].mean()
     all_ids = pd.Index(np.unique(series_ids), name="sid")
     per_series = per_series.reindex(all_ids, fill_value=0.0)
