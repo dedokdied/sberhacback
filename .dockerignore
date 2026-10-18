@@ -1,0 +1,27 @@
+# Train-датасет и локальные материалы не должны попадать в образ
+csv/
+**/sales_dataset_*.csv
+**/stock_dataset_*.csv
+
+# Виртуальное окружение и кэши
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Git и редакторы
+.git/
+.gitignore
+.vscode/
+.idea/
+
+# Локальные артефакты экспериментов и логи
+model_smoke/
+model_smoke_tw/
+*.log
+*.err
+notebooks/
+*.ipynb
+
+# Документация разработки (не нужна в рантайме)
+README_TMP/

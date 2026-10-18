@@ -1,0 +1,6 @@
+fastapi==0.143.3
+lightgbm==4.7.0
+numpy==2.5.4
+pandas==3.0.6
+python-multipart==0.0.32
+uvicorn==0.54.0

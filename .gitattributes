@@ -1,0 +1,8 @@
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.joblib binary
+
+# Артефакты модели хранятся байт-в-байт (SHA-256 в checksums.json
+# сверяется на старте сервиса; любая нормализация переводов строк ломает проверку)
+model/* -text

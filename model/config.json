@@ -1,0 +1,171 @@
+{
+  "model_version": "1.0.0",
+  "schema_version": "1.0",
+  "model_type": "lightgbm-horizon-aware-global-direct",
+  "objective_kind": "tweedie",
+  "target_transform": "none",
+  "history_days": 180,
+  "horizon": 64,
+  "min_history_days": 180,
+  "features": [
+    "h",
+    "dow",
+    "is_weekend",
+    "day_of_month",
+    "month",
+    "dow_factor",
+    "mean_180",
+    "mean_90",
+    "mean_28",
+    "mean_7",
+    "std_180",
+    "max_180",
+    "sale_rate_180",
+    "sale_rate_28",
+    "sale_rate_7",
+    "last_value",
+    "days_since_last_sale",
+    "trend_28_90",
+    "stock_last",
+    "stock_mean_28",
+    "stock_zero_rate_90",
+    "days_of_cover",
+    "warehouse_code",
+    "article_code",
+    "cat1_code",
+    "cat2_code",
+    "cat3_code"
+  ],
+  "categorical_features": [
+    "warehouse_code",
+    "article_code",
+    "cat1_code",
+    "cat2_code",
+    "cat3_code"
+  ],
+  "postprocess": {
+    "clip_min": 0,
+    "zero_forecast_if_no_sales_in_window": true,
+    "positive_threshold": 0.1
+  },
+  "lgb_params": {
+    "learning_rate": 0.06,
+    "num_leaves": 63,
+    "min_data_in_leaf": 100,
+    "feature_fraction": 0.9,
+    "bagging_fraction": 0.9,
+    "bagging_freq": 1,
+    "lambda_l2": 1.0,
+    "max_bin": 127,
+    "seed": 42,
+    "deterministic": true,
+    "force_row_wise": true,
+    "num_threads": 0,
+    "verbosity": -1,
+    "objective": "tweedie",
+    "tweedie_variance_power": 1.3,
+    "metric": "l2"
+  },
+  "num_boost_round": 1200,
+  "best_iteration": 125,
+  "train_rows": 8987648,
+  "train_pairs": 8777,
+  "grid_pairs": 8789,
+  "train_cutoffs": [
+    "2024-06-28",
+    "2024-08-09",
+    "2024-09-20",
+    "2024-11-01",
+    "2024-12-13",
+    "2025-01-24",
+    "2025-03-07",
+    "2025-04-18",
+    "2025-05-30",
+    "2025-07-11",
+    "2025-08-22",
+    "2025-10-03",
+    "2025-11-14",
+    "2025-12-26",
+    "2026-02-06",
+    "2026-03-20"
+  ],
+  "valid_cutoff": "2026-05-01",
+  "cutoff_step_days": 42,
+  "seed": 42,
+  "created_at": "2026-10-17T19:38:17.130552+00:00",
+  "lib_versions": {
+    "lightgbm": "4.7.0",
+    "pandas": "3.0.6",
+    "numpy": "2.5.4"
+  },
+  "valid_metrics": {
+    "rows": 562496,
+    "chosen_threshold": 0.1,
+    "chosen": {
+      "threshold": 0.1,
+      "smape": 158.1021,
+      "wape": 90.5252,
+      "rmse": 0.8165,
+      "bias_pct": -7.1774,
+      "rmsle": 0.3086
+    },
+    "grid": [
+      {
+        "threshold": 0.0,
+        "smape": 181.152,
+        "wape": 96.0904,
+        "rmse": 0.8158,
+        "bias_pct": -1.0219,
+        "rmsle": 0.308
+      },
+      {
+        "threshold": 0.1,
+        "smape": 158.1021,
+        "wape": 90.5252,
+        "rmse": 0.8165,
+        "bias_pct": -7.1774,
+        "rmsle": 0.3086
+      },
+      {
+        "threshold": 0.2,
+        "smape": 158.3785,
+        "wape": 85.9037,
+        "rmse": 0.8182,
+        "bias_pct": -13.2364,
+        "rmsle": 0.3099
+      },
+      {
+        "threshold": 0.3,
+        "smape": 159.2843,
+        "wape": 82.4588,
+        "rmse": 0.8209,
+        "bias_pct": -18.7556,
+        "rmsle": 0.312
+      },
+      {
+        "threshold": 0.5,
+        "smape": 161.5334,
+        "wape": 78.5624,
+        "rmse": 0.8281,
+        "bias_pct": -27.6632,
+        "rmsle": 0.3176
+      },
+      {
+        "threshold": 0.75,
+        "smape": 164.135,
+        "wape": 76.8054,
+        "rmse": 0.8387,
+        "bias_pct": -36.1981,
+        "rmsle": 0.3254
+      },
+      {
+        "threshold": 1.0,
+        "smape": 166.4305,
+        "wape": 77.0223,
+        "rmse": 0.8516,
+        "bias_pct": -43.232,
+        "rmsle": 0.3346
+      }
+    ]
+  }
+}
